@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - "master"
+      - "padbk-padbk-docker-py311"
       - "[0-9].[0-9]*"
   pull_request:
     branches:
