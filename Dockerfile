@@ -121,7 +121,6 @@ COPY --chown=superset:superset pyproject.toml setup.py MANIFEST.in README.md ./
 # setup.py uses the version information in package.json
 COPY --chown=superset:superset superset-frontend/package.json superset-frontend/
 COPY --chown=superset:superset requirements/base.txt requirements/
-COPY --chown=superset:superset scripts/check-env.py scripts/
 RUN --mount=type=cache,target=/root/.cache/pip \
     apt-get update -qq && apt-get install -yqq --no-install-recommends \
       build-essential \
@@ -179,14 +178,14 @@ RUN apt-get update -qq \
         pkg-config \
         && rm -rf /var/lib/apt/lists/*
 
+# Installing headless browsers
 RUN --mount=type=cache,target=/root/.cache/pip \
     pip install --no-cache-dir playwright
-RUN playwright install-deps
 
 RUN if [ "$INCLUDE_CHROMIUM" = "true" ]; then \
-        playwright install chromium; \
+        playwright install chromium --with-deps; \
     else \
-        echo "Skipping translations in dev mode"; \
+        echo "Skipping Chromium installation"; \
     fi
 
 # Install GeckoDriver WebDriver
@@ -194,12 +193,9 @@ ARG GECKODRIVER_VERSION=v0.34.0 \
     FIREFOX_VERSION=125.0.3
 
 RUN if [ "$INCLUDE_FIREFOX" = "true" ]; then \
-        apt-get update -qq \
-        && apt-get install -yqq --no-install-recommends wget bzip2 \
-        && wget -q https://github.com/mozilla/geckodriver/releases/download/${GECKODRIVER_VERSION}/geckodriver-${GECKODRIVER_VERSION}-linux64.tar.gz -O - | tar xfz - -C /usr/local/bin \
-        && wget -q https://download-installer.cdn.mozilla.net/pub/firefox/releases/${FIREFOX_VERSION}/linux-x86_64/en-US/firefox-${FIREFOX_VERSION}.tar.bz2 -O - | tar xfj - -C /opt \
-        && ln -s /opt/firefox/firefox /usr/local/bin/firefox \
-        && apt-get autoremove -yqq --purge wget bzip2 && rm -rf /var/[log,tmp]/* /tmp/* /var/lib/apt/lists/*; \
+      playwright install firefox --with-deps; \
+    else \
+      echo "Skipping Firefox installation"; \
     fi
 
 # Installing mysql client os-level dependencies in dev image only because GPL
@@ -208,6 +204,7 @@ RUN apt-get install -yqq --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 COPY --chown=superset:superset requirements/development.txt requirements/
+COPY --chown=superset:superset scripts/check-env.py scripts/
 RUN --mount=type=cache,target=/root/.cache/pip \
     apt-get update -qq && apt-get install -yqq --no-install-recommends \
       build-essential \
