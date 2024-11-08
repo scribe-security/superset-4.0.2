@@ -87,7 +87,8 @@ RUN rm /app/superset/translations/messages.pot
 
 FROM python:${PY_VER} AS python-base
 RUN --mount=type=cache,target=/root/.cache/pip \
-    pip install --no-cache-dir uv
+    pip install --no-cache-dir uv \
+    && uv pip install --no-cache-dir --upgrade setuptools pip
 ######################################################################
 # Final lean image...
 ######################################################################
@@ -126,7 +127,6 @@ COPY --chown=superset:superset requirements/base.txt requirements/
 RUN --mount=type=cache,target=/root/.cache/pip \
     apt-get update -qq && apt-get install -yqq --no-install-recommends \
       build-essential \
-    && uv pip install --no-cache-dir --upgrade setuptools pip \
     && uv pip install --no-cache-dir -r requirements/base.txt \
     && apt-get autoremove -yqq --purge build-essential \
     && rm -rf /var/lib/apt/lists/*
@@ -180,9 +180,18 @@ RUN apt-get update -qq \
         pkg-config \
         && rm -rf /var/lib/apt/lists/*
 
-# Installing headless browsers
-RUN --mount=type=cache,target=/root/.cache/pip \
-    uv pip install --no-cache-dir playwright
+########################################################
+# Installing headless browsers if needed
+########################################################
+ARG GECKODRIVER_VERSION=v0.34.0 \
+    FIREFOX_VERSION=125.0.3
+
+RUN if [ "$INCLUDE_CHROMIUM" = "true" ] || [ "$INCLUDE_FIREFOX" = "true" ]; then \
+      --mount=type=cache,target=/root/.cache/pip \
+      uv pip install --no-cache-dir playwright; \
+    else \
+      echo "Skipping Playwright installation"; \
+    fi
 
 RUN if [ "$INCLUDE_CHROMIUM" = "true" ]; then \
         playwright install chromium --with-deps; \
@@ -190,15 +199,12 @@ RUN if [ "$INCLUDE_CHROMIUM" = "true" ]; then \
         echo "Skipping Chromium installation"; \
     fi
 
-# Install GeckoDriver WebDriver
-ARG GECKODRIVER_VERSION=v0.34.0 \
-    FIREFOX_VERSION=125.0.3
-
 RUN if [ "$INCLUDE_FIREFOX" = "true" ]; then \
       playwright install firefox --with-deps; \
     else \
       echo "Skipping Firefox installation"; \
     fi
+########################################################
 
 # Installing mysql client os-level dependencies in dev image only because GPL
 RUN apt-get install -yqq --no-install-recommends \
