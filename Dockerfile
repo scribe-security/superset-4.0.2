@@ -118,11 +118,11 @@ RUN mkdir -p ${PYTHONPATH} superset/static requirements superset-frontend apache
     && chown -R superset:superset ./* \
     && rm -rf /var/lib/apt/lists/*
 
-RUN apt-get install -yqq --no-install-recommends \
+RUN apt-get update -qq && apt-get install -yqq --no-install-recommends \
         libsasl2-dev \
         libsasl2-modules-gssapi-mit \
     && rm -rf /var/lib/apt/lists/*
-RUN apt-get install -yqq --no-install-recommends \
+RUN apt-get update -qq && apt-get install -yqq --no-install-recommends \
         libpq-dev \
         libecpg-dev \
     && rm -rf /var/lib/apt/lists/*
