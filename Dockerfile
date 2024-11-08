@@ -88,7 +88,7 @@ RUN rm /app/superset/translations/messages.pot
 FROM python:${PY_VER} AS python-base
 RUN --mount=type=cache,target=/root/.cache/pip \
     pip install --no-cache-dir uv \
-    && uv pip install --no-cache-dir --upgrade setuptools pip
+    && uv pip install --system --no-cache-dir --upgrade setuptools pip
 ######################################################################
 # Final lean image...
 ######################################################################
@@ -127,7 +127,7 @@ COPY --chown=superset:superset requirements/base.txt requirements/
 RUN --mount=type=cache,target=/root/.cache/pip \
     apt-get update -qq && apt-get install -yqq --no-install-recommends \
       build-essential \
-    && uv pip install --no-cache-dir -r requirements/base.txt \
+    && uv pip install --system --no-cache-dir -r requirements/base.txt \
     && apt-get autoremove -yqq --purge build-essential \
     && rm -rf /var/lib/apt/lists/*
 
@@ -137,7 +137,7 @@ COPY --chown=superset:superset --from=superset-node /app/superset/static/assets 
 ## Lastly, let's install superset itself
 COPY --chown=superset:superset superset superset
 RUN --mount=type=cache,target=/root/.cache/pip \
-    uv pip install --no-cache-dir -e .
+    uv pip install --system --no-cache-dir -e .
 
 # Copy the .json translations from the frontend layer
 COPY --chown=superset:superset --from=superset-node /app/superset/translations superset/translations
@@ -188,7 +188,7 @@ ARG GECKODRIVER_VERSION=v0.34.0 \
 
 RUN if [ "$INCLUDE_CHROMIUM" = "true" ] || [ "$INCLUDE_FIREFOX" = "true" ]; then \
       --mount=type=cache,target=/root/.cache/pip \
-      uv pip install --no-cache-dir playwright; \
+      uv pip install --system --no-cache-dir playwright; \
     else \
       echo "Skipping Playwright installation"; \
     fi
@@ -216,7 +216,7 @@ COPY --chown=superset:superset scripts/check-env.py scripts/
 RUN --mount=type=cache,target=/root/.cache/pip \
     apt-get update -qq && apt-get install -yqq --no-install-recommends \
       build-essential \
-    && uv pip install --no-cache-dir -r requirements/development.txt \
+    && uv pip install --system --no-cache-dir -r requirements/development.txt \
     && apt-get autoremove -yqq --purge build-essential \
     && rm -rf /var/lib/apt/lists/*
 
