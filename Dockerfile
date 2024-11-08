@@ -114,13 +114,20 @@ RUN mkdir -p ${PYTHONPATH} superset/static requirements superset-frontend apache
     && useradd --user-group -d ${SUPERSET_HOME} -m --no-log-init --shell /bin/bash superset \
     && apt-get update -qq && apt-get install -yqq --no-install-recommends \
         curl \
-        libsasl2-dev \
-        libsasl2-modules-gssapi-mit \
-        libpq-dev \
-        libecpg-dev \
-        libldap2-dev \
     && touch superset/static/version_info.json \
     && chown -R superset:superset ./* \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN apt-get install -yqq --no-install-recommends \
+        libsasl2-dev \
+        libsasl2-modules-gssapi-mit \
+    && rm -rf /var/lib/apt/lists/*
+RUN apt-get install -yqq --no-install-recommends \
+        libpq-dev \
+        libecpg-dev \
+    && rm -rf /var/lib/apt/lists/*
+RUN apt-get install -yqq --no-install-recommends \
+        libldap2-dev \
     && rm -rf /var/lib/apt/lists/*
 
 COPY --chown=superset:superset pyproject.toml setup.py MANIFEST.in README.md ./
