@@ -107,6 +107,9 @@ ENV LANG=C.UTF-8 \
     SUPERSET_HOME="/app/superset_home" \
     SUPERSET_PORT=8088
 
+# Set apt one-at-a-time to allow for lower memory consumption
+RUN echo 'Acquire::Queue-Mode "access";' > /etc/apt/apt.conf.d/99single;
+
 RUN mkdir -p ${PYTHONPATH} superset/static requirements superset-frontend apache_superset.egg-info requirements \
     && useradd --user-group -d ${SUPERSET_HOME} -m --no-log-init --shell /bin/bash superset \
     && apt-get update -qq && apt-get install -yqq --no-install-recommends \
