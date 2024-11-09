@@ -182,13 +182,17 @@ RUN apt-get update -qq \
     && apt-get install -yqq --no-install-recommends \
         libnss3 \
         libdbus-glib-1-2 \
-        libgtk-3-0 \
+        && rm -rf /var/lib/apt/lists/*
+RUN apt-get update -qq && apt-get install -yqq --no-install-recommends \
         libx11-xcb1 \
         libasound2 \
-        libxtst6 \
+        libgtk-3-0 \
+    && rm -rf /var/lib/apt/lists/*
+RUN apt-get update -qq && apt-get install -yqq --no-install-recommends \
         git \
         pkg-config \
-        && rm -rf /var/lib/apt/lists/*
+        libxtst6 \
+    && rm -rf /var/lib/apt/lists/*
 
 ########################################################
 # Installing headless browsers if needed
