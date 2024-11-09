@@ -126,7 +126,7 @@ RUN apt-get update -qq && apt-get install -yqq --no-install-recommends \
         libpq-dev \
         libecpg-dev \
     && rm -rf /var/lib/apt/lists/*
-RUN apt-get install -yqq --no-install-recommends \
+RUN apt-get update -qq && apt-get install -yqq --no-install-recommends \
         libldap2-dev \
     && rm -rf /var/lib/apt/lists/*
 
