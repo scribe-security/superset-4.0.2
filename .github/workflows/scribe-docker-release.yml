@@ -39,3 +39,8 @@ jobs:
             "release" \
             --build_context_ref "${{ github.ref_name }}-${{ inputs.release_index }}" \
             --platform ${{ matrix.platform }}
+
+      - name: List Docker Images
+        run: |
+          echo "Listing all available Docker images:"
+          docker images
