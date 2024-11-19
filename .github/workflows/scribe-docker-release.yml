@@ -51,17 +51,22 @@ jobs:
       - name: Log in to Amazon ECR
         id: ecr-login
         run: |
-          aws ecr get-login-password --region ${{ secrets.AWS_REGION }} \
-          | docker login --username AWS --password-stdin "${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com"
+          aws ecr get-login-password --region il-central-1 | docker login --username AWS --password-stdin 975050347682.dkr.ecr.il-central-1.amazonaws.com
 
       - name: Tag Docker Image
         run: |
           IMAGE_TAG="${{ github.ref_name }}-${{ inputs.release_index }}-py311"
-          REPOSITORY="${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.ECR_REPOSITORY_NAME }}"
+          REPOSITORY="975050347682.dkr.ecr.il-central-1.amazonaws.com/superset-base-image"
           docker tag $IMAGE_TAG $REPOSITORY:$IMAGE_TAG
 
       - name: Push Docker Image to ECR
         run: |
           IMAGE_TAG="${{ github.ref_name }}-${{ inputs.release_index }}-py311"
-          REPOSITORY="${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.ECR_REPOSITORY_NAME }}"
+          REPOSITORY="975050347682.dkr.ecr.il-central-1.amazonaws.com/superset-base-image"
+          docker push $REPOSITORY:$IMAGE_TAG
+          
+      - name: Print Docker Image Tag
+        run: |
+          IMAGE_TAG="${{ github.ref_name }}-${{ inputs.release_index }}-py311"
+          echo $IMAGE_TAG
           docker push $REPOSITORY:$IMAGE_TAG
