@@ -5,6 +5,10 @@ on:
     inputs:
       release_index:
         required: true
+        
+permissions:
+  id-token: write
+  contents: read
 
 jobs:
   docker-build:
